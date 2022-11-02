@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
-
-import ConnectWallet from "./components/ConnectWallet";
+import Main from "./pages/Main";
 
 const ModalContext = createContext();
 const WalletContext = createContext();
-const ButtonContext = createContext();
+const PrepareContext = createContext();
+const WalletAdressContext = createContext();
 
 export const ModalProvider = ({ children }) => {
   const modalIsOpen = useState(false);
@@ -42,20 +42,41 @@ export const useConnectState = () => {
   return value;
 };
 
-export const ButtonProvider = ({ children }) => {
-  const buttonType = useState("");
+export const PrepareProvider = ({ children }) => {
+  const PrepareType = useState("");
 
   return (
-    <ButtonContext.Provider value={buttonType}>
+    <PrepareContext.Provider value={PrepareType}>
       {children}
-    </ButtonContext.Provider>
+    </PrepareContext.Provider>
   );
 };
 
-export const useButtonState = () => {
-  const value = useContext(ButtonContext);
+export const usePrepareState = () => {
+  const value = useContext(PrepareContext);
   if (value === undefined) {
-    throw new Error("useButtonState should be used within ButtonProvider");
+    throw new Error("usePrepareState should be used within PrepareProvider");
+  }
+
+  return value;
+};
+
+export const WalletAdressProvider = ({ children }) => {
+  const walletAddress = useState(undefined);
+
+  return (
+    <WalletAdressContext.Provider value={walletAddress}>
+      {children}
+    </WalletAdressContext.Provider>
+  );
+};
+
+export const useWalletState = () => {
+  const value = useContext(WalletAdressContext);
+  if (value === undefined) {
+    throw new Error(
+      "useWalletState should be used within walletAddressProvider"
+    );
   }
 
   return value;
@@ -65,9 +86,11 @@ const App = () => {
   return (
     <ModalProvider>
       <WalletProvider>
-        <ButtonProvider>
-          <ConnectWallet />
-        </ButtonProvider>
+        <PrepareProvider>
+          <WalletAdressProvider>
+            <Main />
+          </WalletAdressProvider>
+        </PrepareProvider>
       </WalletProvider>
     </ModalProvider>
   );

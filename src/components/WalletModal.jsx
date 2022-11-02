@@ -1,26 +1,32 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { getResult, prepare } from "klip-sdk";
 import { QRCodeCanvas } from "qrcode.react";
-import "./walletModal.css";
+import "../styles/walletModal.css";
 import { bappName, successLink, failLink, value } from "../Constants/index";
-import { useButtonState, useConnectState, useModalState } from "../App";
+import {
+  usePrepareState,
+  useConnectState,
+  useModalState,
+  useWalletState,
+} from "../App";
 let timer;
 
 const WalletModal = () => {
   const outSection = useRef(null);
   const [, setModalIsOpen] = useModalState();
   const [QRUrl, setQRUrl] = useState(undefined);
-  const [, setConnectStatus] = useConnectState();
-  const [buttonType] = useButtonState();
+  const [, setConnectStatus] = useConnectState(undefined);
+  const [prepareType] = usePrepareState();
   const [requestKey, setRequestKey] = useState(undefined);
+  const [, setWalletAddress] = useWalletState();
 
   const getRequestKey = useCallback(async () => {
     try {
       let result = "";
 
-      if (buttonType === "connectWallet") {
+      if (prepareType === "connectWallet") {
         result = await prepare.auth({ bappName, successLink, failLink });
-      } else if (buttonType === "signMessage") {
+      } else if (prepareType === "signMessage") {
         result = await prepare.signMessage({
           bappName,
           value,
@@ -41,7 +47,7 @@ const WalletModal = () => {
     } catch (error) {
       console.error(error);
     }
-  }, [buttonType]);
+  }, [prepareType]);
 
   const stopTimer = () => {
     clearInterval(timer);
@@ -63,8 +69,13 @@ const WalletModal = () => {
       const response = await getResult(requestKey);
 
       if (response.status === "completed") {
+        if (prepareType === "connectWallet") {
+          setWalletAddress(response.result.klaytn_address);
+        }
+        if (prepareType === "signMessage") {
+          setConnectStatus(response.result.hash);
+        }
         setModalIsOpen(false);
-        setConnectStatus(response.status);
         setRequestKey("");
         clearInterval(timer);
       }
@@ -73,7 +84,13 @@ const WalletModal = () => {
     return () => {
       clearInterval(timer);
     };
-  }, [setModalIsOpen, requestKey, setConnectStatus]);
+  }, [
+    setModalIsOpen,
+    requestKey,
+    setConnectStatus,
+    setWalletAddress,
+    prepareType,
+  ]);
 
   return (
     <div
