@@ -1,9 +1,9 @@
-import React from "react";
-import { useConnectState, useModalState, useWalletState } from "../App";
-import ConnectWalletButton from "../components/ConnectWalletButton";
-import SignWalletButton from "../components/SignWalletButton";
-import WalletModal from "../components/WalletModal";
-import ModalPortal from "../Portal";
+import React from 'react';
+import { useConnectState, useModalState, useWalletState } from '../App';
+import ConnectWalletButton from '../components/ConnectWalletButton';
+import SignWalletButton from '../components/SignWalletButton';
+import WalletModal from '../components/WalletModal';
+import ModalPortal from '../Portal';
 
 const Main = () => {
   const [walletAddress] = useWalletState(undefined);
@@ -26,3 +26,4 @@ const Main = () => {
 };
 
 export default Main;
+//메인테스트
